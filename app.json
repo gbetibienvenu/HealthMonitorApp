@@ -21,10 +21,23 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.bienbien.HealthMonitorApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "351f2ca3-82c4-4d17-b6ca-c3911fe28802"
+      }
+    },
+    "owner": "bienbien",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/351f2ca3-82c4-4d17-b6ca-c3911fe28802"
     }
   }
 }
