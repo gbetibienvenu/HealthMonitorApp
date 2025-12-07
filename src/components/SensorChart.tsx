@@ -151,7 +151,7 @@ export const SensorChart: React.FC<SensorChartProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Theme.card,
+    backgroundColor: Theme.textLight,
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '600',
-    color: Theme.text,
+    color: Theme.textLight,
   },
   currentValue: {
     fontSize: 20,

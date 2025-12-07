@@ -6,10 +6,10 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   RefreshControl,
   Alert,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HealthRecommendation, ConnectionState } from '../types';
 import { Theme } from '../constants/colors';
 import MQTTService from '../services/mqttService';
@@ -18,6 +18,8 @@ import { ConnectionStatusBar } from '../components/StatusBar';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 
 export const HomeScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
+
   const [recommendation, setRecommendation] = useState<HealthRecommendation | null>(null);
   const [connectionState, setConnectionState] = useState<ConnectionState>('connected');
   const [brokerAddress, setBrokerAddress] = useState<string>('');
@@ -33,28 +35,21 @@ export const HomeScreen: React.FC = () => {
     };
   }, []);
 
-  /**
-   * Initialize screen with last recommendation
-   */
   const initializeScreen = async () => {
     try {
       console.log('🏠 Initializing Home screen...');
-      
-      // Get last connection info
       const lastIp = await StorageService.getLastConnectedIp();
       const settings = await StorageService.getSettings();
-      
+
       if (lastIp && settings.brokerPort) {
         setBrokerAddress(`${lastIp}:${settings.brokerPort}`);
       }
 
-      // Get last recommendation from storage
       const lastRecommendation = await StorageService.getLastRecommendation();
       if (lastRecommendation) {
         setRecommendation(lastRecommendation);
       }
 
-      // Check connection state
       const state = MQTTService.getConnectionState();
       setConnectionState(state);
 
@@ -66,40 +61,22 @@ export const HomeScreen: React.FC = () => {
     }
   };
 
-  /**
-   * Setup MQTT message listeners
-   */
   const setupMQTTListeners = () => {
-    // Listen for recommendations
     MQTTService.onRecommendation((data) => {
-      console.log('📨 New recommendation received');
       setRecommendation(data);
     });
 
-    // Listen for connection state changes
     MQTTService.onConnectionState((state) => {
-      console.log('🔄 Connection state changed:', state);
       setConnectionState(state);
 
       if (state === 'error' || state === 'disconnected') {
-        Alert.alert(
-          'Connection Lost',
-          'Lost connection to Health Monitor. Attempting to reconnect...',
-          [{ text: 'OK' }]
-        );
+        Alert.alert('Connection Lost', 'Lost connection to Health Monitor. Attempting to reconnect...', [{ text: 'OK' }]);
       } else if (state === 'connected') {
-        Alert.alert(
-          'Connected',
-          'Successfully reconnected to Health Monitor',
-          [{ text: 'OK' }]
-        );
+        Alert.alert('Connected', 'Successfully reconnected to Health Monitor', [{ text: 'OK' }]);
       }
     });
   };
 
-  /**
-   * Handle pull-to-refresh
-   */
   const onRefresh = async () => {
     setRefreshing(true);
     await initializeScreen();
@@ -108,26 +85,20 @@ export const HomeScreen: React.FC = () => {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <ConnectionStatusBar 
-          connectionState={connectionState}
-          brokerAddress={brokerAddress}
-        />
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
+        <ConnectionStatusBar connectionState={connectionState} brokerAddress={brokerAddress} />
         <LoadingIndicator message="Loading health data..." />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ConnectionStatusBar 
-        connectionState={connectionState}
-        brokerAddress={brokerAddress}
-      />
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
+      <ConnectionStatusBar connectionState={connectionState} brokerAddress={brokerAddress} />
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 24 + insets.bottom }]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -137,10 +108,8 @@ export const HomeScreen: React.FC = () => {
           />
         }
       >
-        {/* Current Recommendation */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Current Status</Text>
-          
           {recommendation ? (
             <View style={styles.recommendationCard}>
               <View style={styles.header}>
@@ -151,7 +120,6 @@ export const HomeScreen: React.FC = () => {
                 </View>
                 <Text style={styles.timestamp}>{formatTime(recommendation.timestamp)}</Text>
               </View>
-
               <View style={styles.content}>
                 <Text style={styles.summary}>{recommendation.summary}</Text>
                 <Text style={styles.advice}>{recommendation.advice}</Text>
@@ -161,28 +129,23 @@ export const HomeScreen: React.FC = () => {
             <View style={styles.noDataCard}>
               <Text style={styles.noDataIcon}>🔄</Text>
               <Text style={styles.noDataTitle}>Waiting for Data</Text>
-              <Text style={styles.noDataText}>
-                Your health monitor will send updates every 5 minutes
-              </Text>
+              <Text style={styles.noDataText}>Your health monitor will send updates every 5 minutes</Text>
             </View>
           )}
         </View>
 
-        {/* Info Card */}
         <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>ℹ️ How it works</Text>
           <Text style={styles.infoText}>
-            Your Health Monitor analyzes sensor data every 5 minutes and provides 
-            personalized recommendations based on your activity and environment.
+            Your Health Monitor analyzes sensor data every 5 minutes and provides personalized recommendations based on your activity and environment.
           </Text>
         </View>
 
-        {/* Connection Status Info */}
         {connectionState !== 'connected' && (
           <View style={[styles.statusCard, { backgroundColor: Theme.warning + '20' }]}>
             <Text style={styles.statusCardTitle}>⚠️ Connection Status</Text>
             <Text style={styles.statusCardText}>
-              {connectionState === 'reconnecting' 
+              {connectionState === 'reconnecting'
                 ? 'Reconnecting to Health Monitor...'
                 : connectionState === 'error'
                 ? 'Connection error. Please check your network.'
@@ -195,14 +158,14 @@ export const HomeScreen: React.FC = () => {
   );
 };
 
-// Helper functions
+// Helper functions (unchanged)
 const formatTime = (timestamp: string): string => {
   try {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
+      second: '2-digit',
     });
   } catch {
     return timestamp;

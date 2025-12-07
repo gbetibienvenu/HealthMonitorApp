@@ -29,7 +29,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "351f2ca3-82c4-4d17-b6ca-c3911fe28802"
+        "projectId": "09c13ba4-2aa1-430e-99f6-181d5812a6c0"
       }
     },
     "owner": "bienbien",
@@ -37,7 +37,10 @@
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/351f2ca3-82c4-4d17-b6ca-c3911fe28802"
-    }
+      "url": "https://u.expo.dev/77880dd7-776c-43cd-978d-58b0eb583a51"
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

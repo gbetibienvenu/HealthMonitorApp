@@ -6,8 +6,9 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
 } from 'react-native';
+// Use SafeAreaView from react-native-safe-area-context
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { SensorData, SensorChartData, ConnectionState } from '../types';
 import { Theme } from '../constants/colors';
 import { Config } from '../constants/config';
@@ -77,7 +78,8 @@ export const SensorScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    // edges ensures top safe area is respected (prevents overlap with status bar / notch)
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <ConnectionStatusBar
         connectionState={connectionState}
         brokerAddress={brokerAddress}
